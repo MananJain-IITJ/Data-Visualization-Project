@@ -37,34 +37,19 @@
 #     df=df[df['user'] != 'group_notification']
 #     return df
 
-
-
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import re
 import pandas as pd
-
-
 def preprocess(data):
-    # pattern = r'\d{1,2}/\d{1,2}/\d{2},\s\d{1,2}:\d{1,2}\s(?:am|pm)\s-\s'
-    # message=re.split(pattern,data)[1:]
-    # dates = re.findall(pattern, data)
-    # dates = [date.replace('\u202f', '') for date in dates]
 
-    # df=pd.DataFrame({'Date':dates,'Message':message})
-    # df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%y, %I:%M%p - ')
-
-    pattern = '\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s-\s'
-
-    messages = re.split(pattern, data)[1:]
+    pattern = r'\d{1,2}/\d{1,2}/\d{2},\s\d{1,2}:\d{1,2}\s(?:am|pm)\s-\s'
+    message=re.split(pattern,data)[1:]
     dates = re.findall(pattern, data)
+    dates = [date.replace('\u202f', '') for date in dates]
 
-    df = pd.DataFrame({'user_message': messages, 'message_date': dates})
-    # convert message_date type
-    df['message_date'] = pd.to_datetime(df['message_date'], format='%d/%m/%Y, %H:%M - ')
-
-    df.rename(columns={'Message': 'Date'}, inplace=True)
-
+    df=pd.DataFrame({'Date':dates,'Message':message})
+    df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%y, %I:%M%p - ')  
 
     users = []
     messages = []
@@ -88,7 +73,8 @@ def preprocess(data):
     df['day_name'] = df['Date'].dt.day_name()
     df['hour'] = df['Date'].dt.hour
     df['minute'] = df['Date'].dt.minute
-    
+
+
     def analyze_sentiment(message):
         sid = SentimentIntensityAnalyzer()
         sentiment_scores = sid.polarity_scores(message)
@@ -111,4 +97,3 @@ def preprocess(data):
 
     df=df[df['user'] != 'group_notification']
     return df
-
